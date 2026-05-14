@@ -19,11 +19,14 @@ export class TaskRunner {
      *
      * Flow:
      *  1. Mark task in_progress.
-     *  2. If the task has a dependency and it Failed, short-circuit this task as Failed.
-     *  3. Otherwise load the dependency output (if any) and call job.run().
-     *  4. On success: persist output to Task.output and Result.data; mark Completed.
+     *  2. If the task has a dependency: load it once. If the dependency
+     *     failed, short-circuit this task as Failed.
+     *  3. Build context from the (already-loaded) dependency output and
+     *     call job.run().
+     *  4. On success: persist output to Task.output; mark Completed.
      *  5. On error: mark Failed, store error message in Task.progress.
-     *  6. In finally: always reconcile the workflow status and write finalResult if terminal.
+     *  6. In finally: always reconcile the workflow status and write
+     *     finalResult if terminal.
      */
     async run(task: Task): Promise<void> {
         // ------------------------------------------------------------------ //
@@ -35,8 +38,9 @@ export class TaskRunner {
 
         try {
             // ------------------------------------------------------------------ //
-            // Phase 2: dependency check – short-circuit if dependency failed
+            // Phase 2+3: dependency lookup (single fetch) + context build
             // ------------------------------------------------------------------ //
+            let context: { dependencyOutput?: unknown } | undefined;
             if (task.dependsOnTaskId) {
                 const depTask = await this.taskRepository.findOne({
                     where: { taskId: task.dependsOnTaskId },
@@ -49,23 +53,14 @@ export class TaskRunner {
                 if (depTask.status === TaskStatus.Failed) {
                     throw new Error(
                         `Dependency task ${task.dependsOnTaskId} (step ${depTask.stepNumber}) failed. ` +
-                        `Skipping this task.`
+                        `Skipping this task.`,
                     );
                 }
+
+                context = { dependencyOutput: safeParse(depTask.output) };
             }
 
-            // ------------------------------------------------------------------ //
-            // Phase 3: build context from dependency output and run the job
-            // ------------------------------------------------------------------ //
             const job = getJobForTaskType(task.taskType);
-            let context = undefined;
-
-            if (task.dependsOnTaskId) {
-                const depTask = await this.taskRepository.findOne({
-                    where: { taskId: task.dependsOnTaskId },
-                });
-                context = { dependencyOutput: safeParse(depTask?.output) };
-            }
 
             log.info({ taskId: task.taskId, taskType: task.taskType }, 'Starting job');
             const jobResult = await job.run(task, context);

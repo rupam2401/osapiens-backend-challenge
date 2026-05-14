@@ -53,6 +53,7 @@ export class WorkflowFactory {
             task.taskType = step.taskType;
             task.stepNumber = step.stepNumber;
             task.workflow = savedWorkflow;
+            task.dependsOnTaskId = null;
             return task;
         });
 

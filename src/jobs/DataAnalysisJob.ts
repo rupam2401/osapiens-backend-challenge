@@ -7,8 +7,12 @@ import { logger } from '../logger';
 
 const log = logger.child({ module: 'DataAnalysisJob' });
 
+export interface DataAnalysisOutput {
+    country: string | null;
+}
+
 export class DataAnalysisJob implements Job {
-    async run(task: Task, _context?: JobContext): Promise<string> {
+    async run(task: Task, _context?: JobContext): Promise<DataAnalysisOutput> {
         log.debug({ taskId: task.taskId }, 'Running data analysis');
 
         const inputGeometry: Feature<Polygon> = JSON.parse(task.geoJson);
@@ -17,13 +21,13 @@ export class DataAnalysisJob implements Job {
             if (countryFeature.geometry.type === 'Polygon' || countryFeature.geometry.type === 'MultiPolygon') {
                 const isWithin = booleanWithin(inputGeometry, countryFeature as Feature<Polygon>);
                 if (isWithin) {
-                    const country = countryFeature.properties?.name;
+                    const country = countryFeature.properties?.name ?? null;
                     log.info({ taskId: task.taskId, country }, 'Polygon located within country');
-                    return country;
+                    return { country };
                 }
             }
         }
         log.info({ taskId: task.taskId }, 'No containing country found');
-        return 'No country found';
+        return { country: null };
     }
 }

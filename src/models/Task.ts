@@ -31,10 +31,10 @@ export class Task {
 
     /**
      * taskId of the task this one depends on (must be Completed before this
-     * task is eligible to run). Null means no dependency.
+     * task is eligible to run). `null` means no dependency.
      */
     @Column({ nullable: true, type: 'varchar' })
-    dependsOnTaskId?: string | null;
+    dependsOnTaskId!: string | null;
 
     @ManyToOne(() => Workflow, workflow => workflow.tasks, { eager: false })
     workflow!: Workflow;
