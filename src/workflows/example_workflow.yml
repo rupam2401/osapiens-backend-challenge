@@ -1,0 +1,24 @@
+# Example workflow that demonstrates all job types and interdependencies.
+#
+# Steps run in stepNumber order.  The optional `dependsOn` field references the
+# stepNumber of a prerequisite task; that task must be Completed before this one
+# becomes eligible to run.
+#
+# Job types available:
+#   polygonArea       – calculates the area of the GeoJSON polygon (m²)
+#   analysis          – determines which country the polygon lies within
+#   notification      – sends an email notification (stub)
+#   reportGeneration  – aggregates outputs of all preceding tasks into a report
+
+name: "example_workflow"
+steps:
+  - taskType: "polygonArea"
+    stepNumber: 1
+
+  - taskType: "analysis"
+    stepNumber: 2
+    dependsOn: 1        # runs after polygonArea completes
+
+  - taskType: "reportGeneration"
+    stepNumber: 3
+    dependsOn: 2        # runs after analysis completes; aggregates steps 1 & 2

@@ -1,0 +1,8 @@
+node_modules/
+dist/
+data/
+.git/
+__tests__/
+jest.config.js
+*.log
+.env*
