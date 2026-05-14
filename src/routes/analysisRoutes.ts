@@ -1,25 +1,18 @@
 import { Router } from 'express';
-import path from 'path';
 import { AppDataSource } from '../data-source';
-import { WorkflowFactory } from '../workflows/WorkflowFactory';
 import { analysisRequestSchema } from '../schemas/analysisRequest';
+import { WorkflowService } from '../services/WorkflowService';
 
 const router = Router();
-const workflowFactory = new WorkflowFactory(AppDataSource);
+const service = new WorkflowService(AppDataSource);
 
 router.post('/', async (req, res, next) => {
     try {
         const { clientId, geoJson } = analysisRequestSchema.parse(req.body);
-        const workflowFile = path.join(__dirname, '../workflows/example_workflow.yml');
-
-        const workflow = await workflowFactory.createWorkflowFromYAML(
-            workflowFile,
-            clientId,
-            JSON.stringify(geoJson),
-        );
+        const { workflowId } = await service.createFromAnalysis(clientId, geoJson);
 
         res.status(202).json({
-            workflowId: workflow.workflowId,
+            workflowId,
             message: 'Workflow created and tasks queued from YAML definition.',
         });
     } catch (err) {
