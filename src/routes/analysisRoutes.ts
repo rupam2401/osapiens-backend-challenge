@@ -1,27 +1,29 @@
 import { Router } from 'express';
+import path from 'path';
 import { AppDataSource } from '../data-source';
 import { WorkflowFactory } from '../workflows/WorkflowFactory';
-import { logger } from '../logger';
-import path from 'path';
+import { analysisRequestSchema } from '../schemas/analysisRequest';
 
 const router = Router();
 const workflowFactory = new WorkflowFactory(AppDataSource);
-const log = logger.child({ module: 'analysisRoutes' });
 
-router.post('/', async (req, res) => {
-    const { clientId, geoJson } = req.body;
-    const workflowFile = path.join(__dirname, '../workflows/example_workflow.yml');
-
+router.post('/', async (req, res, next) => {
     try {
-        const workflow = await workflowFactory.createWorkflowFromYAML(workflowFile, clientId, JSON.stringify(geoJson));
+        const { clientId, geoJson } = analysisRequestSchema.parse(req.body);
+        const workflowFile = path.join(__dirname, '../workflows/example_workflow.yml');
+
+        const workflow = await workflowFactory.createWorkflowFromYAML(
+            workflowFile,
+            clientId,
+            JSON.stringify(geoJson),
+        );
 
         res.status(202).json({
             workflowId: workflow.workflowId,
-            message: 'Workflow created and tasks queued from YAML definition.'
+            message: 'Workflow created and tasks queued from YAML definition.',
         });
-    } catch (error: any) {
-        log.error({ err: error }, 'Error creating workflow');
-        res.status(500).json({ message: 'Failed to create workflow' });
+    } catch (err) {
+        next(err);
     }
 });
 

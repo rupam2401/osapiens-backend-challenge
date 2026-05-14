@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import 'reflect-metadata';
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec, swaggerOptions } from './swagger';
 import analysisRoutes from './routes/analysisRoutes';
@@ -11,6 +11,7 @@ import { AppDataSource } from './data-source';
 import { config } from './config';
 import { logger } from './logger';
 import pinoHttp from 'pino-http';
+import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
 app.use(pinoHttp({ logger }));
@@ -28,12 +29,8 @@ app.use('/workflow', workflowRoutes);
 // Catch-all: renders README.md as styled HTML
 app.use('/', defaultRoute);
 
-// Express 5 JSON error handler
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    logger.error({ err }, 'Unhandled error');
-    res.status(500).json({ message: err.message ?? 'Internal server error' });
-});
+// Central error handler — must come last
+app.use(errorHandler);
 
 AppDataSource.initialize()
     .then(() => {
