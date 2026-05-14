@@ -1,6 +1,6 @@
 import { AppDataSource } from '../data-source';
 import { Task } from '../models/Task';
-import { TaskRunner } from './taskRunner';
+import { TaskRunner } from '../runner/TaskRunner';
 import { TaskStatus } from '../domain/TaskStatus';
 
 /**

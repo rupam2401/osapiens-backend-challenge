@@ -5,7 +5,7 @@ import { swaggerSpec, swaggerOptions } from './swagger';
 import analysisRoutes from './routes/analysisRoutes';
 import workflowRoutes from './routes/workflowRoutes';
 import defaultRoute from './routes/defaultRoute';
-import { taskWorker } from './workers/taskWorker';
+import { taskWorker } from './worker/taskWorker';
 import { AppDataSource } from './data-source';
 
 const app = express();

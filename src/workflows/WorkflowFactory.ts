@@ -6,10 +6,6 @@ import { Task } from '../models/Task';
 import { TaskStatus } from '../domain/TaskStatus';
 import { WorkflowStatus } from '../domain/WorkflowStatus';
 
-// Temporary re-export to keep this commit buildable; removed in C3
-// once all consumers have migrated to `src/domain/WorkflowStatus`.
-export { WorkflowStatus };
-
 interface WorkflowStep {
     taskType: string;
     stepNumber: number;

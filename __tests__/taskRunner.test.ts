@@ -1,7 +1,7 @@
 import { TestDataSource } from './testDataSource';
 import { Task } from '../src/models/Task';
 import { Workflow } from '../src/models/Workflow';
-import { TaskRunner } from '../src/workers/taskRunner';
+import { TaskRunner } from '../src/runner/TaskRunner';
 import { TaskStatus } from '../src/domain/TaskStatus';
 import { WorkflowStatus } from '../src/domain/WorkflowStatus';
 

@@ -6,10 +6,6 @@ import { TaskStatus } from '../domain/TaskStatus';
 import { Workflow } from '../models/Workflow';
 import { Result } from '../models/Result';
 
-// Temporary re-export to keep this commit buildable; removed in C3
-// once all consumers have migrated to `src/domain/TaskStatus`.
-export { TaskStatus };
-
 /** Attempt JSON.parse; on failure return the raw value. */
 function safeParse(value: string | null | undefined): unknown {
     if (value == null) return null;
