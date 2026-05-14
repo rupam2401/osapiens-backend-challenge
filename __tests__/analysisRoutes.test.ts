@@ -17,7 +17,6 @@ jest.mock('../src/data-source', () => ({
 }));
 
 // Routes pulled in *after* the mock so AppDataSource resolves to the test DS.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const analysisRoutes = require('../src/routes/analysisRoutes').default;
 
 const app = express();

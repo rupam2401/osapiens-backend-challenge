@@ -12,7 +12,6 @@ jest.mock('../src/data-source', () => ({
     },
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const healthRoutes = require('../src/routes/healthRoutes').default;
 
 const app = express();
