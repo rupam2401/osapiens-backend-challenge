@@ -5,6 +5,7 @@ import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec, swaggerOptions } from './swagger';
 import analysisRoutes from './routes/analysisRoutes';
 import workflowRoutes from './routes/workflowRoutes';
+import healthRoutes from './routes/healthRoutes';
 import defaultRoute from './routes/defaultRoute';
 import { taskWorker } from './worker/taskWorker';
 import { AppDataSource } from './data-source';
@@ -23,6 +24,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOption
 app.get('/api-docs.json', (_req: Request, res: Response) => { res.json(swaggerSpec); });
 
 // API routes — must be registered before the catch-all '/' renderer
+app.use('/health', healthRoutes);
 app.use('/analysis', analysisRoutes);
 app.use('/workflow', workflowRoutes);
 

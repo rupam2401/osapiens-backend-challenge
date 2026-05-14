@@ -43,8 +43,8 @@ USER node
 
 EXPOSE 3000
 
-# Health-check: poke the Swagger JSON endpoint
+# Health-check: hit the dedicated /health endpoint (pings the DB)
 HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
-    CMD wget -qO- http://localhost:3000/api-docs.json > /dev/null || exit 1
+    CMD wget -qO- http://localhost:3000/health > /dev/null || exit 1
 
 CMD ["node", "dist/index.js"]
