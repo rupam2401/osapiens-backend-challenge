@@ -20,6 +20,6 @@ export class Workflow {
     @Column({ nullable: true, type: 'text' })
     finalResult?: string | null;
 
-    @OneToMany(() => Task, task => task.workflow, { eager: false })
+    @OneToMany(() => Task, (task) => task.workflow, { eager: false })
     tasks!: Task[];
 }

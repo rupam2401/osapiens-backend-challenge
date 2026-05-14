@@ -21,7 +21,9 @@ app.use(express.json({ limit: config.BODY_LIMIT }));
 // Swagger UI — available at /api-docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions));
 // Raw OpenAPI JSON spec (handy for importing into Postman, Insomnia, etc.)
-app.get('/api-docs.json', (_req: Request, res: Response) => { res.json(swaggerSpec); });
+app.get('/api-docs.json', (_req: Request, res: Response) => {
+    res.json(swaggerSpec);
+});
 
 // API routes — must be registered before the catch-all '/' renderer
 app.use('/health', healthRoutes);
@@ -56,8 +58,8 @@ AppDataSource.initialize()
 
             // 1. Stop accepting new HTTP connections.
             await new Promise<void>((resolve, reject) => {
-                server.close(err => (err ? reject(err) : resolve()));
-            }).catch(err => logger.error({ err }, 'Error closing HTTP server'));
+                server.close((err) => (err ? reject(err) : resolve()));
+            }).catch((err) => logger.error({ err }, 'Error closing HTTP server'));
 
             // 2. Signal the worker to stop after its current task.
             abortController.abort();
@@ -65,11 +67,11 @@ AppDataSource.initialize()
             // 3. Wait for the worker to drain, capped by SHUTDOWN_TIMEOUT_MS.
             await Promise.race([
                 workerPromise,
-                new Promise<void>(resolve => setTimeout(resolve, SHUTDOWN_TIMEOUT_MS)),
+                new Promise<void>((resolve) => setTimeout(resolve, SHUTDOWN_TIMEOUT_MS)),
             ]);
 
             // 4. Close DB connections last.
-            await AppDataSource.destroy().catch(err =>
+            await AppDataSource.destroy().catch((err) =>
                 logger.error({ err }, 'Error destroying DataSource'),
             );
 

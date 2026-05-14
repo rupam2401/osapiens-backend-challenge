@@ -35,7 +35,7 @@ describe('WorkflowFactory.createWorkflowFromYAML', () => {
         const workflow = await factory.createWorkflowFromYAML(
             path.join(YAML_DIR, 'example_workflow.yml'),
             'client-1',
-            SAMPLE_GEOJSON
+            SAMPLE_GEOJSON,
         );
 
         expect(workflow.workflowId).toBeTruthy();
@@ -57,7 +57,7 @@ describe('WorkflowFactory.createWorkflowFromYAML', () => {
         const workflow = await factory.createWorkflowFromYAML(
             path.join(YAML_DIR, 'example_workflow.yml'),
             'client-2',
-            SAMPLE_GEOJSON
+            SAMPLE_GEOJSON,
         );
 
         const taskRepo = TestDataSource.getRepository(Task);
@@ -88,17 +88,21 @@ describe('WorkflowFactory.createWorkflowFromYAML', () => {
             fs.mkdtempSync(path.join(os.tmpdir(), 'wfactory-')),
             'bad_workflow.yml',
         );
-        fs.writeFileSync(tmpYaml, `
+        fs.writeFileSync(
+            tmpYaml,
+            `
 name: "bad"
 steps:
   - taskType: "polygonArea"
     stepNumber: 1
     dependsOn: 99
-`, 'utf8');
+`,
+            'utf8',
+        );
 
         try {
             await expect(
-                factory.createWorkflowFromYAML(tmpYaml, 'client-bad', SAMPLE_GEOJSON)
+                factory.createWorkflowFromYAML(tmpYaml, 'client-bad', SAMPLE_GEOJSON),
             ).rejects.toThrow(/depends on stepNumber 99/);
         } finally {
             fs.rmSync(path.dirname(tmpYaml), { recursive: true, force: true });

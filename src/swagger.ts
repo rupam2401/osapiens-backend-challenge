@@ -35,9 +35,7 @@ export const swaggerSpec = {
         `.trim(),
         contact: { name: 'osapiens dev team' },
     },
-    tags: [
-        { name: 'Workflows', description: 'Create and inspect async processing workflows' },
-    ],
+    tags: [{ name: 'Workflows', description: 'Create and inspect async processing workflows' }],
     paths: {
         '/analysis': {
             post: {
@@ -62,12 +60,14 @@ Copy the **workflowId** from the response and use it in the status / results end
                                 properties: {
                                     clientId: {
                                         type: 'string',
-                                        description: 'Identifier for the client submitting the request',
+                                        description:
+                                            'Identifier for the client submitting the request',
                                         example: 'reviewer-1',
                                     },
                                     geoJson: {
                                         type: 'object',
-                                        description: 'GeoJSON Feature or Polygon geometry to analyse',
+                                        description:
+                                            'GeoJSON Feature or Polygon geometry to analyse',
                                     },
                                 },
                             },
@@ -80,13 +80,15 @@ Copy the **workflowId** from the response and use it in the status / results end
                                             type: 'Feature',
                                             geometry: {
                                                 type: 'Polygon',
-                                                coordinates: [[
-                                                    [-63.6249, -10.3111],
-                                                    [-63.6249, -10.3679],
-                                                    [-63.6128, -10.3679],
-                                                    [-63.6128, -10.3111],
-                                                    [-63.6249, -10.3111],
-                                                ]],
+                                                coordinates: [
+                                                    [
+                                                        [-63.6249, -10.3111],
+                                                        [-63.6249, -10.3679],
+                                                        [-63.6128, -10.3679],
+                                                        [-63.6128, -10.3111],
+                                                        [-63.6249, -10.3111],
+                                                    ],
+                                                ],
                                             },
                                             properties: {},
                                         },
@@ -100,13 +102,15 @@ Copy the **workflowId** from the response and use it in the status / results end
                                             type: 'Feature',
                                             geometry: {
                                                 type: 'Polygon',
-                                                coordinates: [[
-                                                    [13.2884, 52.4539],
-                                                    [13.2884, 52.5759],
-                                                    [13.5155, 52.5759],
-                                                    [13.5155, 52.4539],
-                                                    [13.2884, 52.4539],
-                                                ]],
+                                                coordinates: [
+                                                    [
+                                                        [13.2884, 52.4539],
+                                                        [13.2884, 52.5759],
+                                                        [13.5155, 52.5759],
+                                                        [13.5155, 52.4539],
+                                                        [13.2884, 52.4539],
+                                                    ],
+                                                ],
                                             },
                                             properties: {},
                                         },
@@ -120,13 +124,15 @@ Copy the **workflowId** from the response and use it in the status / results end
                                             type: 'Feature',
                                             geometry: {
                                                 type: 'Polygon',
-                                                coordinates: [[
-                                                    [-109.0452, 37.0004],
-                                                    [-109.0452, 41.0006],
-                                                    [-102.0424, 41.0006],
-                                                    [-102.0424, 37.0004],
-                                                    [-109.0452, 37.0004],
-                                                ]],
+                                                coordinates: [
+                                                    [
+                                                        [-109.0452, 37.0004],
+                                                        [-109.0452, 41.0006],
+                                                        [-102.0424, 41.0006],
+                                                        [-102.0424, 37.0004],
+                                                        [-109.0452, 37.0004],
+                                                    ],
+                                                ],
                                             },
                                             properties: {},
                                         },
@@ -140,13 +146,15 @@ Copy the **workflowId** from the response and use it in the status / results end
                                             type: 'Feature',
                                             geometry: {
                                                 type: 'Polygon',
-                                                coordinates: [[
-                                                    [130.8, -12.5],
-                                                    [130.8, -13.2],
-                                                    [131.6, -13.2],
-                                                    [131.6, -12.5],
-                                                    [130.8, -12.5],
-                                                ]],
+                                                coordinates: [
+                                                    [
+                                                        [130.8, -12.5],
+                                                        [130.8, -13.2],
+                                                        [131.6, -13.2],
+                                                        [131.6, -12.5],
+                                                        [130.8, -12.5],
+                                                    ],
+                                                ],
                                             },
                                             properties: {},
                                         },
@@ -154,7 +162,8 @@ Copy the **workflowId** from the response and use it in the status / results end
                                 },
                                 invalid_for_demo: {
                                     summary: '⚠️ Error demo — Point geometry (will fail step 1)',
-                                    description: 'Use this to see how a failing task propagates through the workflow.',
+                                    description:
+                                        'Use this to see how a failing task propagates through the workflow.',
                                     value: {
                                         clientId: 'reviewer-error-demo',
                                         geoJson: {
@@ -173,7 +182,8 @@ Copy the **workflowId** from the response and use it in the status / results end
                 },
                 responses: {
                     202: {
-                        description: 'Workflow created — copy the **workflowId** for the next calls',
+                        description:
+                            'Workflow created — copy the **workflowId** for the next calls',
                         content: {
                             'application/json': {
                                 schema: {
@@ -182,7 +192,8 @@ Copy the **workflowId** from the response and use it in the status / results end
                                         workflowId: {
                                             type: 'string',
                                             format: 'uuid',
-                                            description: '⬅️ Copy this and paste it into the status / results endpoints',
+                                            description:
+                                                '⬅️ Copy this and paste it into the status / results endpoints',
                                             example: '3433c76d-f226-4c91-afb5-7dfc7accab24',
                                         },
                                         message: { type: 'string' },
@@ -200,7 +211,8 @@ Copy the **workflowId** from the response and use it in the status / results end
             get: {
                 tags: ['Workflows'],
                 summary: 'Get workflow status',
-                description: 'Returns the current status and how many tasks have completed. Poll this until `completedTasks === totalTasks`.',
+                description:
+                    'Returns the current status and how many tasks have completed. Poll this until `completedTasks === totalTasks`.',
                 operationId: 'getWorkflowStatus',
                 parameters: [
                     {
@@ -232,15 +244,30 @@ Copy the **workflowId** from the response and use it in the status / results end
                                 examples: {
                                     in_progress: {
                                         summary: 'Still running',
-                                        value: { workflowId: '3433c76d-f226-4c91-afb5-7dfc7accab24', status: 'in_progress', completedTasks: 1, totalTasks: 3 },
+                                        value: {
+                                            workflowId: '3433c76d-f226-4c91-afb5-7dfc7accab24',
+                                            status: 'in_progress',
+                                            completedTasks: 1,
+                                            totalTasks: 3,
+                                        },
                                     },
                                     completed: {
                                         summary: 'Done ✅',
-                                        value: { workflowId: '3433c76d-f226-4c91-afb5-7dfc7accab24', status: 'completed', completedTasks: 3, totalTasks: 3 },
+                                        value: {
+                                            workflowId: '3433c76d-f226-4c91-afb5-7dfc7accab24',
+                                            status: 'completed',
+                                            completedTasks: 3,
+                                            totalTasks: 3,
+                                        },
                                     },
                                     failed: {
                                         summary: 'Failed ❌',
-                                        value: { workflowId: '3433c76d-f226-4c91-afb5-7dfc7accab24', status: 'failed', completedTasks: 0, totalTasks: 3 },
+                                        value: {
+                                            workflowId: '3433c76d-f226-4c91-afb5-7dfc7accab24',
+                                            status: 'failed',
+                                            completedTasks: 0,
+                                            totalTasks: 3,
+                                        },
                                     },
                                 },
                             },
@@ -250,8 +277,14 @@ Copy the **workflowId** from the response and use it in the status / results end
                         description: 'Workflow not found',
                         content: {
                             'application/json': {
-                                schema: { type: 'object', properties: { message: { type: 'string' } } },
-                                example: { message: 'Workflow 3433c76d-f226-4c91-afb5-7dfc7accab24 not found' },
+                                schema: {
+                                    type: 'object',
+                                    properties: { message: { type: 'string' } },
+                                },
+                                example: {
+                                    message:
+                                        'Workflow 3433c76d-f226-4c91-afb5-7dfc7accab24 not found',
+                                },
                             },
                         },
                     },
@@ -305,8 +338,14 @@ Returns the aggregated \`finalResult\` once the workflow is **completed**.
                                                             type: { type: 'string' },
                                                             stepNumber: { type: 'integer' },
                                                             status: { type: 'string' },
-                                                            output: { description: 'Job-specific output (object or string)' },
-                                                            error: { type: 'string', nullable: true },
+                                                            output: {
+                                                                description:
+                                                                    'Job-specific output (object or string)',
+                                                            },
+                                                            error: {
+                                                                type: 'string',
+                                                                nullable: true,
+                                                            },
                                                         },
                                                     },
                                                 },
@@ -321,9 +360,33 @@ Returns the aggregated \`finalResult\` once the workflow is **completed**.
                                         workflowId: '3433c76d-f226-4c91-afb5-7dfc7accab24',
                                         status: 'completed',
                                         tasks: [
-                                            { taskId: 'aaa-111', type: 'polygonArea', stepNumber: 1, status: 'completed', output: { areaSqMeters: 8359776.6 }, error: null },
-                                            { taskId: 'bbb-222', type: 'analysis', stepNumber: 2, status: 'completed', output: 'Brazil', error: null },
-                                            { taskId: 'ccc-333', type: 'reportGeneration', stepNumber: 3, status: 'completed', output: { finalReport: 'All 2 preceding tasks completed successfully.' }, error: null },
+                                            {
+                                                taskId: 'aaa-111',
+                                                type: 'polygonArea',
+                                                stepNumber: 1,
+                                                status: 'completed',
+                                                output: { areaSqMeters: 8359776.6 },
+                                                error: null,
+                                            },
+                                            {
+                                                taskId: 'bbb-222',
+                                                type: 'analysis',
+                                                stepNumber: 2,
+                                                status: 'completed',
+                                                output: 'Brazil',
+                                                error: null,
+                                            },
+                                            {
+                                                taskId: 'ccc-333',
+                                                type: 'reportGeneration',
+                                                stepNumber: 3,
+                                                status: 'completed',
+                                                output: {
+                                                    finalReport:
+                                                        'All 2 preceding tasks completed successfully.',
+                                                },
+                                                error: null,
+                                            },
                                         ],
                                     },
                                 },
@@ -343,7 +406,13 @@ Returns the aggregated \`finalResult\` once the workflow is **completed**.
                                         finalResult: { nullable: true },
                                     },
                                 },
-                                example: { message: 'Workflow is not yet completed (current status: in_progress)', workflowId: '3433c76d-f226-4c91-afb5-7dfc7accab24', status: 'in_progress', finalResult: null },
+                                example: {
+                                    message:
+                                        'Workflow is not yet completed (current status: in_progress)',
+                                    workflowId: '3433c76d-f226-4c91-afb5-7dfc7accab24',
+                                    status: 'in_progress',
+                                    finalResult: null,
+                                },
                             },
                         },
                     },
@@ -351,7 +420,10 @@ Returns the aggregated \`finalResult\` once the workflow is **completed**.
                         description: 'Workflow not found',
                         content: {
                             'application/json': {
-                                example: { message: 'Workflow 3433c76d-f226-4c91-afb5-7dfc7accab24 not found' },
+                                example: {
+                                    message:
+                                        'Workflow 3433c76d-f226-4c91-afb5-7dfc7accab24 not found',
+                                },
                             },
                         },
                     },

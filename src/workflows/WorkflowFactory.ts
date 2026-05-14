@@ -31,7 +31,11 @@ export class WorkflowFactory {
      * @param clientId - Client identifier for the workflow.
      * @param geoJson  - The geoJson data string shared across tasks.
      */
-    async createWorkflowFromYAML(filePath: string, clientId: string, geoJson: string): Promise<Workflow> {
+    async createWorkflowFromYAML(
+        filePath: string,
+        clientId: string,
+        geoJson: string,
+    ): Promise<Workflow> {
         const fileContent = fs.readFileSync(filePath, 'utf8');
         const workflowDef = yaml.load(fileContent) as WorkflowDefinition;
 
@@ -45,7 +49,7 @@ export class WorkflowFactory {
         const savedWorkflow = await workflowRepository.save(workflow);
 
         // Pass 1: create and save all tasks (without dependency links yet)
-        const tasks: Task[] = workflowDef.steps.map(step => {
+        const tasks: Task[] = workflowDef.steps.map((step) => {
             const task = new Task();
             task.clientId = clientId;
             task.geoJson = geoJson;
@@ -74,7 +78,7 @@ export class WorkflowFactory {
                 if (!depTaskId) {
                     throw new Error(
                         `Workflow "${workflowDef.name}": step ${step.stepNumber} depends on ` +
-                        `stepNumber ${step.dependsOn} but no such step exists in this workflow.`
+                            `stepNumber ${step.dependsOn} but no such step exists in this workflow.`,
                     );
                 }
                 const task = savedTasks[i];

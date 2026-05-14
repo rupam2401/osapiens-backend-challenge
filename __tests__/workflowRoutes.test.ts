@@ -108,7 +108,9 @@ describe('GET /workflow/:id/status', () => {
 // -------------------------------------------------------------------
 describe('GET /workflow/:id/results', () => {
     it('returns 404 for a non-existent workflow', async () => {
-        const res = await request(app).get('/workflow/00000000-0000-0000-0000-000000000001/results');
+        const res = await request(app).get(
+            '/workflow/00000000-0000-0000-0000-000000000001/results',
+        );
         expect(res.status).toBe(404);
     });
 
@@ -131,7 +133,15 @@ describe('GET /workflow/:id/results', () => {
         const finalResult = JSON.stringify({
             workflowId: 'some-id',
             status: 'completed',
-            tasks: [{ taskId: 'tid', type: 'polygonArea', status: 'completed', output: { areaSqMeters: 42 }, error: null }],
+            tasks: [
+                {
+                    taskId: 'tid',
+                    type: 'polygonArea',
+                    status: 'completed',
+                    output: { areaSqMeters: 42 },
+                    error: null,
+                },
+            ],
         });
         const workflow = await createWorkflow(WorkflowStatus.Completed, finalResult);
 

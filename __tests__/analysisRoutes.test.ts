@@ -36,13 +36,15 @@ const VALID_GEOJSON = {
     type: 'Feature',
     geometry: {
         type: 'Polygon',
-        coordinates: [[
-            [-63.6249, -10.3111],
-            [-63.6249, -10.3679],
-            [-63.6128, -10.3679],
-            [-63.6128, -10.3111],
-            [-63.6249, -10.3111],
-        ]],
+        coordinates: [
+            [
+                [-63.6249, -10.3111],
+                [-63.6249, -10.3679],
+                [-63.6128, -10.3679],
+                [-63.6128, -10.3111],
+                [-63.6249, -10.3111],
+            ],
+        ],
     },
     properties: {},
 };
@@ -56,9 +58,7 @@ describe('POST /analysis — validation', () => {
     });
 
     it('returns 400 when clientId is missing', async () => {
-        const res = await request(app)
-            .post('/analysis')
-            .send({ geoJson: VALID_GEOJSON });
+        const res = await request(app).post('/analysis').send({ geoJson: VALID_GEOJSON });
         expect(res.status).toBe(400);
         expect(res.body.details.some((d: any) => d.path === 'clientId')).toBe(true);
     });

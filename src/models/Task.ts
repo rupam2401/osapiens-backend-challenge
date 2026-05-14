@@ -36,6 +36,6 @@ export class Task {
     @Column({ nullable: true, type: 'varchar' })
     dependsOnTaskId!: string | null;
 
-    @ManyToOne(() => Workflow, workflow => workflow.tasks, { eager: false })
+    @ManyToOne(() => Workflow, (workflow) => workflow.tasks, { eager: false })
     workflow!: Workflow;
 }

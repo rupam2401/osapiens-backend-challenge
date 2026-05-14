@@ -18,7 +18,9 @@ const log = logger.child({ module: 'taskWorker' });
  *
  * Returns null if no eligible task exists right now.
  */
-async function findNextEligibleTask(taskRepository: ReturnType<typeof AppDataSource.getRepository<Task>>): Promise<Task | null> {
+async function findNextEligibleTask(
+    taskRepository: ReturnType<typeof AppDataSource.getRepository<Task>>,
+): Promise<Task | null> {
     // Load all queued tasks ordered by stepNumber (ascending) with workflow relation
     const queuedTasks = await taskRepository.find({
         where: { status: TaskStatus.Queued },
@@ -62,7 +64,7 @@ async function findNextEligibleTask(taskRepository: ReturnType<typeof AppDataSou
  * Always resolves — never rejects on abort — so callers can simply loop.
  */
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         if (signal?.aborted) return resolve();
         const timer = setTimeout(() => {
             signal?.removeEventListener('abort', onAbort);
@@ -97,7 +99,10 @@ export async function taskWorker(signal?: AbortSignal): Promise<void> {
                 await taskRunner.run(task);
             } catch (error) {
                 // TaskRunner already updated the task status — just log here.
-                log.error({ err: error, taskId: task.taskId }, 'Task execution failed (status already updated by TaskRunner)');
+                log.error(
+                    { err: error, taskId: task.taskId },
+                    'Task execution failed (status already updated by TaskRunner)',
+                );
             }
         }
 

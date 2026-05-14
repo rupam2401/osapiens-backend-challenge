@@ -70,7 +70,7 @@ export class WorkflowService {
         }
 
         const tasks = await taskRepo.find({ where: { workflow: { workflowId } } });
-        const completedTasks = tasks.filter(t => t.status === TaskStatus.Completed).length;
+        const completedTasks = tasks.filter((t) => t.status === TaskStatus.Completed).length;
 
         return {
             workflowId,

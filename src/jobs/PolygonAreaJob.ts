@@ -21,14 +21,18 @@ export class PolygonAreaJob implements Job {
         const type = (geom as any).type as string;
         const validTypes = ['Polygon', 'MultiPolygon', 'Feature', 'FeatureCollection'];
         if (!validTypes.includes(type)) {
-            throw new Error(`Invalid GeoJSON: expected Polygon, MultiPolygon, Feature or FeatureCollection but got "${type}"`);
+            throw new Error(
+                `Invalid GeoJSON: expected Polygon, MultiPolygon, Feature or FeatureCollection but got "${type}"`,
+            );
         }
 
         // Narrower check: if it's a Feature, the geometry must be Polygon or MultiPolygon
         if (type === 'Feature') {
             const geoType = (geom as Feature).geometry?.type;
             if (geoType !== 'Polygon' && geoType !== 'MultiPolygon') {
-                throw new Error(`Invalid GeoJSON: Feature geometry must be Polygon or MultiPolygon but got "${geoType}"`);
+                throw new Error(
+                    `Invalid GeoJSON: Feature geometry must be Polygon or MultiPolygon but got "${geoType}"`,
+                );
             }
         }
 

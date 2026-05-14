@@ -18,7 +18,10 @@ export class DataAnalysisJob implements Job {
         const inputGeometry: Feature<Polygon> = JSON.parse(task.geoJson);
 
         for (const countryFeature of countryMapping.features) {
-            if (countryFeature.geometry.type === 'Polygon' || countryFeature.geometry.type === 'MultiPolygon') {
+            if (
+                countryFeature.geometry.type === 'Polygon' ||
+                countryFeature.geometry.type === 'MultiPolygon'
+            ) {
                 const isWithin = booleanWithin(inputGeometry, countryFeature as Feature<Polygon>);
                 if (isWithin) {
                     const country = countryFeature.properties?.name ?? null;

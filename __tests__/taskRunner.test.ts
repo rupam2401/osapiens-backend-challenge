@@ -15,7 +15,12 @@ afterAll(async () => {
 
 /** Helper: create a minimal workflow + one or more tasks and persist them. */
 async function createWorkflowWithTasks(
-    tasks: Array<{ taskType: string; stepNumber: number; geoJson?: string; dependsOnTaskId?: string }>
+    tasks: Array<{
+        taskType: string;
+        stepNumber: number;
+        geoJson?: string;
+        dependsOnTaskId?: string;
+    }>,
 ): Promise<{ workflow: Workflow; tasks: Task[] }> {
     const workflowRepo = TestDataSource.getRepository(Workflow);
     const taskRepo = TestDataSource.getRepository(Task);

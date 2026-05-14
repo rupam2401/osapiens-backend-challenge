@@ -1,26 +1,26 @@
-import express from "express";
-import fs from "fs";
-import path from "path";
-import { marked } from "marked";
-import { logger } from "../logger";
+import express from 'express';
+import fs from 'fs';
+import path from 'path';
+import { marked } from 'marked';
+import { logger } from '../logger';
 
 const router = express.Router();
-const staticPath = path.join(__dirname, "../../public");
-router.use("/public", express.static(staticPath));
-const log = logger.child({ module: "defaultRoute" });
+const staticPath = path.join(__dirname, '../../public');
+router.use('/public', express.static(staticPath));
+const log = logger.child({ module: 'defaultRoute' });
 
-router.get("/", (req, res) => {
-  const readmePath = path.join(__dirname, "../..", "README.md");
-  fs.readFile(readmePath, "utf8", (err, data) => {
-    if (err) {
-      log.error({ err }, "Error reading README.md");
-      return res.status(500).send("Error loading README.md");
-    }
+router.get('/', (req, res) => {
+    const readmePath = path.join(__dirname, '../..', 'README.md');
+    fs.readFile(readmePath, 'utf8', (err, data) => {
+        if (err) {
+            log.error({ err }, 'Error reading README.md');
+            return res.status(500).send('Error loading README.md');
+        }
 
-    const htmlContent = marked(data);
+        const htmlContent = marked(data);
 
-    // Add CSS for dark mode and image resizing
-    const styledHtml = `
+        // Add CSS for dark mode and image resizing
+        const styledHtml = `
       <html>
       <head>
         <style>
@@ -77,9 +77,9 @@ router.get("/", (req, res) => {
       </html>
     `;
 
-    res.setHeader("Content-Type", "text/html");
-    res.send(styledHtml);
-  });
+        res.setHeader('Content-Type', 'text/html');
+        res.send(styledHtml);
+    });
 });
 
 export default router;

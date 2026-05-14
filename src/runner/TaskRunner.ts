@@ -10,9 +10,7 @@ import { logger } from '../logger';
 const log = logger.child({ module: 'TaskRunner' });
 
 export class TaskRunner {
-    constructor(
-        private taskRepository: Repository<Task>,
-    ) {}
+    constructor(private taskRepository: Repository<Task>) {}
 
     /**
      * Runs the appropriate job for the given task, managing all state transitions.
@@ -53,7 +51,7 @@ export class TaskRunner {
                 if (depTask.status === TaskStatus.Failed) {
                     throw new Error(
                         `Dependency task ${task.dependsOnTaskId} (step ${depTask.stepNumber}) failed. ` +
-                        `Skipping this task.`,
+                            `Skipping this task.`,
                     );
                 }
 
@@ -64,30 +62,30 @@ export class TaskRunner {
 
             log.info({ taskId: task.taskId, taskType: task.taskType }, 'Starting job');
             const jobResult = await job.run(task, context);
-            log.info({ taskId: task.taskId, taskType: task.taskType }, 'Job completed successfully');
+            log.info(
+                { taskId: task.taskId, taskType: task.taskType },
+                'Job completed successfully',
+            );
 
             // ------------------------------------------------------------------ //
             // Phase 4: persist output
             // ------------------------------------------------------------------ //
-            const outputStr = typeof jobResult === 'string'
-                ? jobResult
-                : JSON.stringify(jobResult ?? {});
+            const outputStr =
+                typeof jobResult === 'string' ? jobResult : JSON.stringify(jobResult ?? {});
 
             task.output = outputStr;
             task.status = TaskStatus.Completed;
             task.progress = null;
 
             await this.taskRepository.save(task);
-
         } catch (error: any) {
             // ------------------------------------------------------------------ //
             // Phase 5: mark failed, store message
             // ------------------------------------------------------------------ //
             log.error({ taskId: task.taskId, taskType: task.taskType, err: error }, 'Job error');
             task.status = TaskStatus.Failed;
-            task.progress = (error instanceof Error ? error.message : String(error));
+            task.progress = error instanceof Error ? error.message : String(error);
             await this.taskRepository.save(task);
-
         } finally {
             // ------------------------------------------------------------------ //
             // Phase 6: always reconcile workflow (fixes the bug where catch+throw
@@ -114,11 +112,11 @@ export class TaskRunner {
         }
 
         const { tasks } = workflow;
-        const allTerminal = tasks.every(t =>
-            t.status === TaskStatus.Completed || t.status === TaskStatus.Failed
+        const allTerminal = tasks.every(
+            (t) => t.status === TaskStatus.Completed || t.status === TaskStatus.Failed,
         );
-        const anyFailed = tasks.some(t => t.status === TaskStatus.Failed);
-        const allCompleted = tasks.every(t => t.status === TaskStatus.Completed);
+        const anyFailed = tasks.some((t) => t.status === TaskStatus.Failed);
+        const allCompleted = tasks.every((t) => t.status === TaskStatus.Completed);
 
         let newStatus: WorkflowStatus;
         if (allCompleted) {
@@ -136,7 +134,7 @@ export class TaskRunner {
             const taskSummaries = tasks
                 .slice()
                 .sort((a, b) => a.stepNumber - b.stepNumber)
-                .map(t => ({
+                .map((t) => ({
                     taskId: t.taskId,
                     type: t.taskType,
                     stepNumber: t.stepNumber,

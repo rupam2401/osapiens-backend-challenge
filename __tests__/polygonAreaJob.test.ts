@@ -56,7 +56,7 @@ describe('PolygonAreaJob', () => {
                 type: 'Feature',
                 geometry: { type: 'Point', coordinates: [0, 0] },
                 properties: {},
-            })
+            }),
         );
         await expect(job.run(task)).rejects.toThrow(/Polygon or MultiPolygon/i);
     });
@@ -81,7 +81,7 @@ describe('PolygonAreaJob', () => {
                         ],
                     ],
                 ],
-            })
+            }),
         );
         const result = await job.run(task);
         const parsed = JSON.parse(result);
