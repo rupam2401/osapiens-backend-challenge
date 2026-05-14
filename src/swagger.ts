@@ -35,7 +35,10 @@ export const swaggerSpec = {
         `.trim(),
         contact: { name: 'osapiens dev team' },
     },
-    tags: [{ name: 'Workflows', description: 'Create and inspect async processing workflows' }],
+    tags: [
+        { name: 'Workflows', description: 'Create and inspect async processing workflows' },
+        { name: 'Health', description: 'Liveness and readiness probes' },
+    ],
     paths: {
         '/analysis': {
             post: {
@@ -202,7 +205,60 @@ Copy the **workflowId** from the response and use it in the status / results end
                             },
                         },
                     },
+                    400: {
+                        description: 'Validation failed — body did not match the request schema',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        message: { type: 'string', example: 'Validation failed' },
+                                        details: {
+                                            type: 'array',
+                                            items: {
+                                                type: 'object',
+                                                properties: {
+                                                    path: { type: 'string', example: 'clientId' },
+                                                    message: {
+                                                        type: 'string',
+                                                        example: 'clientId is required',
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
                     500: { description: 'Server error (e.g. YAML parse failure)' },
+                },
+            },
+        },
+
+        '/health': {
+            get: {
+                tags: ['Health'],
+                summary: 'Health check',
+                description:
+                    'Pings the database with `SELECT 1`. Returns 200 when the server and DB ' +
+                    'are responsive, 503 otherwise. Used by the Docker `HEALTHCHECK`.',
+                operationId: 'health',
+                responses: {
+                    200: {
+                        description: 'Server and DB are responsive',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        status: { type: 'string', example: 'ok' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    503: { description: 'DB query failed' },
                 },
             },
         },
@@ -373,7 +429,7 @@ Returns the aggregated \`finalResult\` once the workflow is **completed**.
                                                 type: 'analysis',
                                                 stepNumber: 2,
                                                 status: 'completed',
-                                                output: 'Brazil',
+                                                output: { country: 'Brazil' },
                                                 error: null,
                                             },
                                             {
