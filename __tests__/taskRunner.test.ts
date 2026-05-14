@@ -1,8 +1,9 @@
 import { TestDataSource } from './testDataSource';
 import { Task } from '../src/models/Task';
 import { Workflow } from '../src/models/Workflow';
-import { TaskRunner, TaskStatus } from '../src/workers/taskRunner';
-import { WorkflowStatus } from '../src/workflows/WorkflowFactory';
+import { TaskRunner } from '../src/runner/TaskRunner';
+import { TaskStatus } from '../src/domain/TaskStatus';
+import { WorkflowStatus } from '../src/domain/WorkflowStatus';
 
 beforeAll(async () => {
     await TestDataSource.initialize();
@@ -14,7 +15,12 @@ afterAll(async () => {
 
 /** Helper: create a minimal workflow + one or more tasks and persist them. */
 async function createWorkflowWithTasks(
-    tasks: Array<{ taskType: string; stepNumber: number; geoJson?: string; dependsOnTaskId?: string }>
+    tasks: Array<{
+        taskType: string;
+        stepNumber: number;
+        geoJson?: string;
+        dependsOnTaskId?: string;
+    }>,
 ): Promise<{ workflow: Workflow; tasks: Task[] }> {
     const workflowRepo = TestDataSource.getRepository(Workflow);
     const taskRepo = TestDataSource.getRepository(Task);

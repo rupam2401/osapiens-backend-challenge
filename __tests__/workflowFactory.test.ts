@@ -35,7 +35,7 @@ describe('WorkflowFactory.createWorkflowFromYAML', () => {
         const workflow = await factory.createWorkflowFromYAML(
             path.join(YAML_DIR, 'example_workflow.yml'),
             'client-1',
-            SAMPLE_GEOJSON
+            SAMPLE_GEOJSON,
         );
 
         expect(workflow.workflowId).toBeTruthy();
@@ -57,7 +57,7 @@ describe('WorkflowFactory.createWorkflowFromYAML', () => {
         const workflow = await factory.createWorkflowFromYAML(
             path.join(YAML_DIR, 'example_workflow.yml'),
             'client-2',
-            SAMPLE_GEOJSON
+            SAMPLE_GEOJSON,
         );
 
         const taskRepo = TestDataSource.getRepository(Task);
@@ -80,24 +80,32 @@ describe('WorkflowFactory.createWorkflowFromYAML', () => {
 
     it('throws if dependsOn references a non-existent stepNumber', async () => {
         const factory = new WorkflowFactory(TestDataSource);
-        // Write an inline YAML string to a temp location (or mock readFileSync)
-        // For simplicity, test via the WorkflowFactory's validation in createWorkflowFromYAML
-        // by supplying a YAML string via the yaml.load path — we test the factory logic
-        // indirectly. The test below exercises the error branch via a crafted YAML file:
-        const tmpYaml = path.join(__dirname, 'bad_workflow.yml');
+        // Use a tempdir + try/finally so the file is always cleaned up even
+        // if the assertion fails.
         const fs = require('fs');
-        fs.writeFileSync(tmpYaml, `
+        const os = require('os');
+        const tmpYaml = path.join(
+            fs.mkdtempSync(path.join(os.tmpdir(), 'wfactory-')),
+            'bad_workflow.yml',
+        );
+        fs.writeFileSync(
+            tmpYaml,
+            `
 name: "bad"
 steps:
   - taskType: "polygonArea"
     stepNumber: 1
     dependsOn: 99
-`, 'utf8');
+`,
+            'utf8',
+        );
 
-        await expect(
-            factory.createWorkflowFromYAML(tmpYaml, 'client-bad', SAMPLE_GEOJSON)
-        ).rejects.toThrow(/depends on stepNumber 99/);
-
-        fs.unlinkSync(tmpYaml);
+        try {
+            await expect(
+                factory.createWorkflowFromYAML(tmpYaml, 'client-bad', SAMPLE_GEOJSON),
+            ).rejects.toThrow(/depends on stepNumber 99/);
+        } finally {
+            fs.rmSync(path.dirname(tmpYaml), { recursive: true, force: true });
+        }
     });
 });

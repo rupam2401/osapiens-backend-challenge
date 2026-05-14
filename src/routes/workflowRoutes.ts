@@ -1,90 +1,41 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { AppDataSource } from '../data-source';
-import { Workflow } from '../models/Workflow';
-import { Task } from '../models/Task';
-import { TaskStatus } from '../workers/taskRunner';
-import { WorkflowStatus } from '../workflows/WorkflowFactory';
+import { WorkflowService } from '../services/WorkflowService';
 
 const router = Router();
-
-/** Attempt JSON.parse; fall back to the raw string on failure. */
-function safeParse(value: string | null | undefined): unknown {
-    if (value == null) return null;
-    try { return JSON.parse(value); } catch { return value; }
-}
+const service = new WorkflowService(AppDataSource);
 
 /**
  * GET /workflow/:id/status
  *
- * Returns the current status of a workflow plus task-completion counters.
- *
- * 200 – workflow found
+ * 200 – counters
  * 404 – workflow not found
  */
-router.get('/:id/status', async (req: Request, res: Response) => {
-    const workflowRepository = AppDataSource.getRepository(Workflow);
-    const taskRepository = AppDataSource.getRepository(Task);
-
-    const workflow = await workflowRepository.findOne({
-        where: { workflowId: req.params.id },
-    });
-
-    if (!workflow) {
-        res.status(404).json({ message: `Workflow ${req.params.id} not found` });
-        return;
+router.get('/:id/status', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        res.status(200).json(await service.getStatus(req.params.id));
+    } catch (err) {
+        next(err);
     }
-
-    const tasks = await taskRepository.find({
-        where: { workflow: { workflowId: workflow.workflowId } },
-    });
-
-    const completedTasks = tasks.filter(t => t.status === TaskStatus.Completed).length;
-
-    res.status(200).json({
-        workflowId: workflow.workflowId,
-        status: workflow.status,
-        completedTasks,
-        totalTasks: tasks.length,
-    });
 });
 
 /**
  * GET /workflow/:id/results
  *
- * Returns the aggregated finalResult of a completed workflow.
- *
- * 200 – workflow completed; finalResult is returned parsed if it is valid JSON
- * 400 – workflow exists but has not yet completed (includes in_progress, initial, failed)
+ * 200 – workflow completed; parsed finalResult
+ * 400 – workflow exists but has not yet completed (any partial finalResult is surfaced)
  * 404 – workflow not found
  */
-router.get('/:id/results', async (req: Request, res: Response) => {
-    const workflowRepository = AppDataSource.getRepository(Workflow);
+router.get('/:id/results', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await service.getResults(req.params.id);
 
-    const workflow = await workflowRepository.findOne({
-        where: { workflowId: req.params.id },
-    });
-
-    if (!workflow) {
-        res.status(404).json({ message: `Workflow ${req.params.id} not found` });
-        return;
+        // Strip the discriminator before sending to the client
+        const { completed, ...body } = result;
+        res.status(completed ? 200 : 400).json(body);
+    } catch (err) {
+        next(err);
     }
-
-    if (workflow.status !== WorkflowStatus.Completed) {
-        res.status(400).json({
-            message: `Workflow is not yet completed (current status: ${workflow.status})`,
-            workflowId: workflow.workflowId,
-            status: workflow.status,
-            // Surface any partial finalResult that may have been written on failure
-            finalResult: workflow.finalResult ? safeParse(workflow.finalResult) : null,
-        });
-        return;
-    }
-
-    res.status(200).json({
-        workflowId: workflow.workflowId,
-        status: workflow.status,
-        finalResult: safeParse(workflow.finalResult),
-    });
 });
 
 export default router;

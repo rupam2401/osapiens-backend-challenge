@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Workflow } from './Workflow';
-import { TaskStatus } from '../workers/taskRunner';
+import { TaskStatus } from '../domain/TaskStatus';
 
 @Entity({ name: 'tasks' })
 export class Task {
@@ -19,9 +19,6 @@ export class Task {
     @Column({ nullable: true, type: 'text' })
     progress?: string | null;
 
-    @Column({ nullable: true })
-    resultId?: string;
-
     @Column()
     taskType!: string;
 
@@ -34,11 +31,11 @@ export class Task {
 
     /**
      * taskId of the task this one depends on (must be Completed before this
-     * task is eligible to run). Null means no dependency.
+     * task is eligible to run). `null` means no dependency.
      */
     @Column({ nullable: true, type: 'varchar' })
-    dependsOnTaskId?: string | null;
+    dependsOnTaskId!: string | null;
 
-    @ManyToOne(() => Workflow, workflow => workflow.tasks, { eager: false })
+    @ManyToOne(() => Workflow, (workflow) => workflow.tasks, { eager: false })
     workflow!: Workflow;
 }

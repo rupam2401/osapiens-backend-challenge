@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Task } from './Task';
-import { WorkflowStatus } from '../workflows/WorkflowFactory';
+import { WorkflowStatus } from '../domain/WorkflowStatus';
 
 @Entity({ name: 'workflows' })
 export class Workflow {
@@ -20,6 +20,6 @@ export class Workflow {
     @Column({ nullable: true, type: 'text' })
     finalResult?: string | null;
 
-    @OneToMany(() => Task, task => task.workflow, { eager: false })
+    @OneToMany(() => Task, (task) => task.workflow, { eager: false })
     tasks!: Task[];
 }

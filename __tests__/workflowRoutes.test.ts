@@ -6,14 +6,14 @@
  */
 import 'reflect-metadata';
 import request from 'supertest';
-import express, { NextFunction, Request, Response } from 'express';
+import express from 'express';
 import { TestDataSource } from './testDataSource';
 import workflowRoutes from '../src/routes/workflowRoutes';
+import { errorHandler } from '../src/middleware/errorHandler';
 import { Workflow } from '../src/models/Workflow';
 import { Task } from '../src/models/Task';
-import { WorkflowStatus } from '../src/workflows/WorkflowFactory';
-import { TaskStatus } from '../src/workers/taskRunner';
-import { AppDataSource } from '../src/data-source';
+import { WorkflowStatus } from '../src/domain/WorkflowStatus';
+import { TaskStatus } from '../src/domain/TaskStatus';
 
 // -------------------------------------------------------------------
 // NOTE: workflowRoutes imports AppDataSource directly, so we need to
@@ -29,9 +29,7 @@ jest.mock('../src/data-source', () => ({
 const app = express();
 app.use(express.json());
 app.use('/workflow', workflowRoutes);
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    res.status(500).json({ message: err.message });
-});
+app.use(errorHandler);
 
 // -------------------------------------------------------------------
 // Setup / teardown
@@ -110,7 +108,9 @@ describe('GET /workflow/:id/status', () => {
 // -------------------------------------------------------------------
 describe('GET /workflow/:id/results', () => {
     it('returns 404 for a non-existent workflow', async () => {
-        const res = await request(app).get('/workflow/00000000-0000-0000-0000-000000000001/results');
+        const res = await request(app).get(
+            '/workflow/00000000-0000-0000-0000-000000000001/results',
+        );
         expect(res.status).toBe(404);
     });
 
@@ -133,7 +133,15 @@ describe('GET /workflow/:id/results', () => {
         const finalResult = JSON.stringify({
             workflowId: 'some-id',
             status: 'completed',
-            tasks: [{ taskId: 'tid', type: 'polygonArea', status: 'completed', output: { areaSqMeters: 42 }, error: null }],
+            tasks: [
+                {
+                    taskId: 'tid',
+                    type: 'polygonArea',
+                    status: 'completed',
+                    output: { areaSqMeters: 42 },
+                    error: null,
+                },
+            ],
         });
         const workflow = await createWorkflow(WorkflowStatus.Completed, finalResult);
 

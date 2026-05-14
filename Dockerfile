@@ -16,6 +16,10 @@ RUN npx tsc
 FROM node:24-alpine AS runtime
 WORKDIR /app
 
+# Tell every dep we're in prod: express/typeorm/etc. skip dev work,
+# and our logger.ts avoids requiring pino-pretty (a devDependency).
+ENV NODE_ENV=production
+
 # Production dependencies only (no devDeps)
 COPY package*.json ./
 RUN npm ci --omit=dev
@@ -35,7 +39,7 @@ COPY README.md ./README.md
 # Static assets served by the default route
 COPY public ./public
 
-# Writable directory for the sql.js database file
+# Writable directory for the better-sqlite3 database file
 RUN mkdir -p data && chown node:node data
 
 # Run as non-root
@@ -43,8 +47,8 @@ USER node
 
 EXPOSE 3000
 
-# Health-check: poke the Swagger JSON endpoint
+# Health-check: hit the dedicated /health endpoint (pings the DB)
 HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
-    CMD wget -qO- http://localhost:3000/api-docs.json > /dev/null || exit 1
+    CMD wget -qO- http://localhost:3000/health > /dev/null || exit 1
 
 CMD ["node", "dist/index.js"]

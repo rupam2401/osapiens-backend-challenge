@@ -1,16 +1,13 @@
 import { DataSource } from 'typeorm';
 import { Task } from './models/Task';
-import { Result } from './models/Result';
 import { Workflow } from './models/Workflow';
-import initSqlJs from 'sql.js';
+import { config } from './config';
 
 export const AppDataSource = new DataSource({
-    type: 'sqljs',
-    autoSave: true,
-    location: 'data/database.sqlite',
+    type: 'better-sqlite3',
+    database: config.DB_PATH,
     dropSchema: false,
-    entities: [Task, Result, Workflow],
+    entities: [Task, Workflow],
     synchronize: true,
     logging: false,
-    driver: initSqlJs,
 });

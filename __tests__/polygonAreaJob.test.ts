@@ -1,6 +1,6 @@
 import { PolygonAreaJob } from '../src/jobs/PolygonAreaJob';
 import { Task } from '../src/models/Task';
-import { TaskStatus } from '../src/workers/taskRunner';
+import { TaskStatus } from '../src/domain/TaskStatus';
 
 /** Minimal Task stub — only the fields PolygonAreaJob reads */
 function makeTask(geoJson: string): Task {
@@ -56,7 +56,7 @@ describe('PolygonAreaJob', () => {
                 type: 'Feature',
                 geometry: { type: 'Point', coordinates: [0, 0] },
                 properties: {},
-            })
+            }),
         );
         await expect(job.run(task)).rejects.toThrow(/Polygon or MultiPolygon/i);
     });
@@ -81,7 +81,7 @@ describe('PolygonAreaJob', () => {
                         ],
                     ],
                 ],
-            })
+            }),
         );
         const result = await job.run(task);
         const parsed = JSON.parse(result);

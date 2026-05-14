@@ -1,17 +1,18 @@
 import { Job, JobContext } from './Job';
 import { Task } from '../models/Task';
 import { AppDataSource } from '../data-source';
-import { TaskStatus } from '../workers/taskRunner';
+import { TaskStatus } from '../domain/TaskStatus';
+import { safeParse } from '../utils/safeParse';
+import { logger } from '../logger';
 
-/** Attempt JSON.parse; fall back to raw string on failure. */
-function safeParse(value: string | null | undefined): unknown {
-    if (value == null) return null;
-    try { return JSON.parse(value); } catch { return value; }
-}
+const log = logger.child({ module: 'ReportGenerationJob' });
 
 export class ReportGenerationJob implements Job {
     async run(task: Task, _context?: JobContext): Promise<string> {
-        console.log(`Generating report for task ${task.taskId} (workflow ${task.workflow.workflowId})...`);
+        log.debug(
+            { taskId: task.taskId, workflowId: task.workflow.workflowId },
+            'Generating report',
+        );
 
         // Reload workflow tasks so we have the latest state and outputs
         const taskRepository = AppDataSource.getRepository(Task);
@@ -22,9 +23,9 @@ export class ReportGenerationJob implements Job {
         });
 
         // Only aggregate tasks that ran before this one
-        const precedingTasks = siblingTasks.filter(t => t.stepNumber < task.stepNumber);
+        const precedingTasks = siblingTasks.filter((t) => t.stepNumber < task.stepNumber);
 
-        const taskEntries = precedingTasks.map(t => ({
+        const taskEntries = precedingTasks.map((t) => ({
             taskId: t.taskId,
             type: t.taskType,
             stepNumber: t.stepNumber,
@@ -33,8 +34,8 @@ export class ReportGenerationJob implements Job {
             error: t.status === TaskStatus.Failed ? (t.progress ?? 'unknown error') : null,
         }));
 
-        const completedCount = taskEntries.filter(t => t.status === TaskStatus.Completed).length;
-        const failedCount = taskEntries.filter(t => t.status === TaskStatus.Failed).length;
+        const completedCount = taskEntries.filter((t) => t.status === TaskStatus.Completed).length;
+        const failedCount = taskEntries.filter((t) => t.status === TaskStatus.Failed).length;
 
         const finalReport =
             failedCount > 0
@@ -47,7 +48,7 @@ export class ReportGenerationJob implements Job {
             finalReport,
         };
 
-        console.log(`Report generated for task ${task.taskId}: ${finalReport}`);
+        log.info({ taskId: task.taskId, completedCount, failedCount }, 'Report generated');
         return JSON.stringify(report);
     }
 }
