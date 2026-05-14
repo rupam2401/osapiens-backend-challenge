@@ -1,13 +1,23 @@
 {
+  "name": "osapiens-backend",
+  "version": "1.0.0",
+  "description": "Async workflow runner with YAML-defined pipelines (TypeScript + Express + TypeORM).",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "node dist/index.js",
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write .",
     "test": "jest --runInBand",
     "test:watch": "jest --runInBand --watch"
   },
   "dependencies": {
     "@turf/turf": "^7.1.0",
-    "@types/swagger-ui-express": "^4.1.8",
     "express": "^5.2.1",
     "js-yaml": "^4.1.0",
     "marked": "^15.0.3",
@@ -24,6 +34,7 @@
     "@types/node": "^24.12.4",
     "@types/sql.js": "^1.4.11",
     "@types/supertest": "^7.2.0",
+    "@types/swagger-ui-express": "^4.1.8",
     "jest": "^30.4.2",
     "nodemon": "^3.1.7",
     "supertest": "^7.2.2",
