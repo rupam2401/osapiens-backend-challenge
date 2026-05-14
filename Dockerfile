@@ -16,6 +16,10 @@ RUN npx tsc
 FROM node:24-alpine AS runtime
 WORKDIR /app
 
+# Tell every dep we're in prod: express/typeorm/etc. skip dev work,
+# and our logger.ts avoids requiring pino-pretty (a devDependency).
+ENV NODE_ENV=production
+
 # Production dependencies only (no devDeps)
 COPY package*.json ./
 RUN npm ci --omit=dev
@@ -35,7 +39,7 @@ COPY README.md ./README.md
 # Static assets served by the default route
 COPY public ./public
 
-# Writable directory for the sql.js database file
+# Writable directory for the better-sqlite3 database file
 RUN mkdir -p data && chown node:node data
 
 # Run as non-root
