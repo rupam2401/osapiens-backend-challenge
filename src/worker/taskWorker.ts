@@ -2,6 +2,7 @@ import { AppDataSource } from '../data-source';
 import { Task } from '../models/Task';
 import { TaskRunner } from '../runner/TaskRunner';
 import { TaskStatus } from '../domain/TaskStatus';
+import { config } from '../config';
 
 /**
  * Finds the next queued task that is eligible to run.
@@ -71,6 +72,6 @@ export async function taskWorker() {
         }
 
         // Wait before checking for the next task again
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise(resolve => setTimeout(resolve, config.WORKER_POLL_MS));
     }
 }

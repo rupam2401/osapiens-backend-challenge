@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import 'reflect-metadata';
 import express, { NextFunction, Request, Response } from 'express';
 import swaggerUi from 'swagger-ui-express';
@@ -7,9 +8,10 @@ import workflowRoutes from './routes/workflowRoutes';
 import defaultRoute from './routes/defaultRoute';
 import { taskWorker } from './worker/taskWorker';
 import { AppDataSource } from './data-source';
+import { config } from './config';
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: config.BODY_LIMIT }));
 
 // Swagger UI — available at /api-docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerOptions));
@@ -35,9 +37,9 @@ AppDataSource.initialize()
         console.log('Database initialised.');
         taskWorker();
 
-        app.listen(3000, () => {
-            console.log('Server is running at http://localhost:3000');
-            console.log('API Playground:  http://localhost:3000/api-docs');
+        app.listen(config.PORT, () => {
+            console.log(`Server is running at http://localhost:${config.PORT}`);
+            console.log(`API Playground:  http://localhost:${config.PORT}/api-docs`);
         });
     })
     .catch((error) => {
