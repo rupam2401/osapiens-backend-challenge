@@ -32,15 +32,51 @@ app.use('/', defaultRoute);
 // Central error handler — must come last
 app.use(errorHandler);
 
+const SHUTDOWN_TIMEOUT_MS = 10_000;
+
 AppDataSource.initialize()
     .then(() => {
         logger.info('Database initialised.');
-        taskWorker();
 
-        app.listen(config.PORT, () => {
+        const abortController = new AbortController();
+        const workerPromise = taskWorker(abortController.signal);
+
+        const server = app.listen(config.PORT, () => {
             logger.info(`Server running at http://localhost:${config.PORT}`);
             logger.info(`API Playground: http://localhost:${config.PORT}/api-docs`);
         });
+
+        let shuttingDown = false;
+        const shutdown = async (signal: NodeJS.Signals) => {
+            if (shuttingDown) return;
+            shuttingDown = true;
+            logger.info({ signal }, 'Shutdown signal received; draining...');
+
+            // 1. Stop accepting new HTTP connections.
+            await new Promise<void>((resolve, reject) => {
+                server.close(err => (err ? reject(err) : resolve()));
+            }).catch(err => logger.error({ err }, 'Error closing HTTP server'));
+
+            // 2. Signal the worker to stop after its current task.
+            abortController.abort();
+
+            // 3. Wait for the worker to drain, capped by SHUTDOWN_TIMEOUT_MS.
+            await Promise.race([
+                workerPromise,
+                new Promise<void>(resolve => setTimeout(resolve, SHUTDOWN_TIMEOUT_MS)),
+            ]);
+
+            // 4. Close DB connections last.
+            await AppDataSource.destroy().catch(err =>
+                logger.error({ err }, 'Error destroying DataSource'),
+            );
+
+            logger.info('Shutdown complete.');
+            process.exit(0);
+        };
+
+        process.on('SIGTERM', () => void shutdown('SIGTERM'));
+        process.on('SIGINT', () => void shutdown('SIGINT'));
     })
     .catch((error) => {
         logger.fatal({ err: error }, 'Failed to initialise database');

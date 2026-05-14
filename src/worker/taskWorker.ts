@@ -57,11 +57,39 @@ async function findNextEligibleTask(taskRepository: ReturnType<typeof AppDataSou
     return null;
 }
 
-export async function taskWorker() {
+/**
+ * Sleeps for `ms` milliseconds or until `signal` aborts (whichever first).
+ * Always resolves — never rejects on abort — so callers can simply loop.
+ */
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+    return new Promise(resolve => {
+        if (signal?.aborted) return resolve();
+        const timer = setTimeout(() => {
+            signal?.removeEventListener('abort', onAbort);
+            resolve();
+        }, ms);
+        const onAbort = () => {
+            clearTimeout(timer);
+            resolve();
+        };
+        signal?.addEventListener('abort', onAbort, { once: true });
+    });
+}
+
+/**
+ * Background polling loop. Picks up the next eligible queued task,
+ * runs it through TaskRunner, then sleeps for WORKER_POLL_MS.
+ *
+ * Pass an `AbortSignal` to stop the loop cleanly on shutdown; the
+ * currently-running task (if any) is allowed to finish first.
+ */
+export async function taskWorker(signal?: AbortSignal): Promise<void> {
     const taskRepository = AppDataSource.getRepository(Task);
     const taskRunner = new TaskRunner(taskRepository);
 
-    while (true) {
+    log.info('Worker started');
+
+    while (!signal?.aborted) {
         const task = await findNextEligibleTask(taskRepository);
 
         if (task) {
@@ -73,7 +101,9 @@ export async function taskWorker() {
             }
         }
 
-        // Wait before checking for the next task again
-        await new Promise(resolve => setTimeout(resolve, config.WORKER_POLL_MS));
+        if (signal?.aborted) break;
+        await sleep(config.WORKER_POLL_MS, signal);
     }
+
+    log.info('Worker stopped');
 }
