@@ -5,6 +5,9 @@ import { WorkflowStatus } from '../domain/WorkflowStatus';
 import { TaskStatus } from '../domain/TaskStatus';
 import { Workflow } from '../models/Workflow';
 import { safeParse } from '../utils/safeParse';
+import { logger } from '../logger';
+
+const log = logger.child({ module: 'TaskRunner' });
 
 export class TaskRunner {
     constructor(
@@ -64,9 +67,9 @@ export class TaskRunner {
                 context = { dependencyOutput: safeParse(depTask?.output) };
             }
 
-            console.log(`Starting job "${task.taskType}" for task ${task.taskId}...`);
+            log.info({ taskId: task.taskId, taskType: task.taskType }, 'Starting job');
             const jobResult = await job.run(task, context);
-            console.log(`Job "${task.taskType}" for task ${task.taskId} completed successfully.`);
+            log.info({ taskId: task.taskId, taskType: task.taskType }, 'Job completed successfully');
 
             // ------------------------------------------------------------------ //
             // Phase 4: persist output
@@ -85,7 +88,7 @@ export class TaskRunner {
             // ------------------------------------------------------------------ //
             // Phase 5: mark failed, store message
             // ------------------------------------------------------------------ //
-            console.error(`Error running job "${task.taskType}" for task ${task.taskId}:`, error);
+            log.error({ taskId: task.taskId, taskType: task.taskType, err: error }, 'Job error');
             task.status = TaskStatus.Failed;
             task.progress = (error instanceof Error ? error.message : String(error));
             await this.taskRepository.save(task);
@@ -111,7 +114,7 @@ export class TaskRunner {
         });
 
         if (!workflow) {
-            console.error(`reconcileWorkflow: workflow ${workflowId} not found`);
+            log.error({ workflowId }, 'reconcileWorkflow: workflow not found');
             return;
         }
 

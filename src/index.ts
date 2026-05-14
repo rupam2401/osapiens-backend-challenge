@@ -9,8 +9,11 @@ import defaultRoute from './routes/defaultRoute';
 import { taskWorker } from './worker/taskWorker';
 import { AppDataSource } from './data-source';
 import { config } from './config';
+import { logger } from './logger';
+import pinoHttp from 'pino-http';
 
 const app = express();
+app.use(pinoHttp({ logger }));
 app.use(express.json({ limit: config.BODY_LIMIT }));
 
 // Swagger UI — available at /api-docs
@@ -28,21 +31,21 @@ app.use('/', defaultRoute);
 // Express 5 JSON error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('Unhandled error:', err);
+    logger.error({ err }, 'Unhandled error');
     res.status(500).json({ message: err.message ?? 'Internal server error' });
 });
 
 AppDataSource.initialize()
     .then(() => {
-        console.log('Database initialised.');
+        logger.info('Database initialised.');
         taskWorker();
 
         app.listen(config.PORT, () => {
-            console.log(`Server is running at http://localhost:${config.PORT}`);
-            console.log(`API Playground:  http://localhost:${config.PORT}/api-docs`);
+            logger.info(`Server running at http://localhost:${config.PORT}`);
+            logger.info(`API Playground: http://localhost:${config.PORT}/api-docs`);
         });
     })
     .catch((error) => {
-        console.error('Failed to initialise database:', error);
+        logger.fatal({ err: error }, 'Failed to initialise database');
         process.exit(1);
     });

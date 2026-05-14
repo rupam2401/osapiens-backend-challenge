@@ -3,10 +3,13 @@ import { Task } from '../models/Task';
 import { AppDataSource } from '../data-source';
 import { TaskStatus } from '../domain/TaskStatus';
 import { safeParse } from '../utils/safeParse';
+import { logger } from '../logger';
+
+const log = logger.child({ module: 'ReportGenerationJob' });
 
 export class ReportGenerationJob implements Job {
     async run(task: Task, _context?: JobContext): Promise<string> {
-        console.log(`Generating report for task ${task.taskId} (workflow ${task.workflow.workflowId})...`);
+        log.debug({ taskId: task.taskId, workflowId: task.workflow.workflowId }, 'Generating report');
 
         // Reload workflow tasks so we have the latest state and outputs
         const taskRepository = AppDataSource.getRepository(Task);
@@ -42,7 +45,7 @@ export class ReportGenerationJob implements Job {
             finalReport,
         };
 
-        console.log(`Report generated for task ${task.taskId}: ${finalReport}`);
+        log.info({ taskId: task.taskId, completedCount, failedCount }, 'Report generated');
         return JSON.stringify(report);
     }
 }

@@ -2,10 +2,13 @@ import area from '@turf/area';
 import { Job, JobContext } from './Job';
 import { Task } from '../models/Task';
 import { Feature, Polygon, MultiPolygon, GeoJSON } from 'geojson';
+import { logger } from '../logger';
+
+const log = logger.child({ module: 'PolygonAreaJob' });
 
 export class PolygonAreaJob implements Job {
     async run(task: Task, _context?: JobContext): Promise<string> {
-        console.log(`Calculating polygon area for task ${task.taskId}...`);
+        log.debug({ taskId: task.taskId }, 'Calculating polygon area');
 
         let geom: GeoJSON;
         try {
@@ -30,7 +33,7 @@ export class PolygonAreaJob implements Job {
         }
 
         const areaSqMeters = area(geom as Feature<Polygon | MultiPolygon>);
-        console.log(`Polygon area for task ${task.taskId}: ${areaSqMeters.toFixed(2)} m²`);
+        log.info({ taskId: task.taskId, areaSqMeters }, 'Polygon area computed');
 
         return JSON.stringify({ areaSqMeters });
     }

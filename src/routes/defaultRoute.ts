@@ -2,16 +2,18 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 import { marked } from "marked";
+import { logger } from "../logger";
 
 const router = express.Router();
 const staticPath = path.join(__dirname, "../../public");
 router.use("/public", express.static(staticPath));
+const log = logger.child({ module: "defaultRoute" });
 
 router.get("/", (req, res) => {
   const readmePath = path.join(__dirname, "../..", "README.md");
   fs.readFile(readmePath, "utf8", (err, data) => {
     if (err) {
-      console.error("Error reading README.md:", err);
+      log.error({ err }, "Error reading README.md");
       return res.status(500).send("Error loading README.md");
     }
 

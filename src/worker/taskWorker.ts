@@ -3,6 +3,9 @@ import { Task } from '../models/Task';
 import { TaskRunner } from '../runner/TaskRunner';
 import { TaskStatus } from '../domain/TaskStatus';
 import { config } from '../config';
+import { logger } from '../logger';
+
+const log = logger.child({ module: 'taskWorker' });
 
 /**
  * Finds the next queued task that is eligible to run.
@@ -66,8 +69,7 @@ export async function taskWorker() {
                 await taskRunner.run(task);
             } catch (error) {
                 // TaskRunner already updated the task status — just log here.
-                console.error('Task execution failed. Task status has already been updated by TaskRunner.');
-                console.error(error);
+                log.error({ err: error, taskId: task.taskId }, 'Task execution failed (status already updated by TaskRunner)');
             }
         }
 
