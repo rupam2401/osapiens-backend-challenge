@@ -5,7 +5,6 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { Task } from '../src/models/Task';
-import { Result } from '../src/models/Result';
 import { Workflow } from '../src/models/Workflow';
 import initSqlJs from 'sql.js';
 
@@ -14,6 +13,6 @@ export const TestDataSource = new DataSource({
     dropSchema: true,
     synchronize: true,
     logging: false,
-    entities: [Task, Result, Workflow],
+    entities: [Task, Workflow],
     driver: initSqlJs,
 });

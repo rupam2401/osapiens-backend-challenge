@@ -4,7 +4,6 @@ import { getJobForTaskType } from '../jobs/JobFactory';
 import { WorkflowStatus } from '../domain/WorkflowStatus';
 import { TaskStatus } from '../domain/TaskStatus';
 import { Workflow } from '../models/Workflow';
-import { Result } from '../models/Result';
 
 /** Attempt JSON.parse; on failure return the raw value. */
 function safeParse(value: string | null | undefined): unknown {
@@ -35,8 +34,6 @@ export class TaskRunner {
         task.status = TaskStatus.InProgress;
         task.progress = 'starting job...';
         await this.taskRepository.save(task);
-
-        const resultRepository = this.taskRepository.manager.getRepository(Result);
 
         try {
             // ------------------------------------------------------------------ //
@@ -86,13 +83,6 @@ export class TaskRunner {
             task.output = outputStr;
             task.status = TaskStatus.Completed;
             task.progress = null;
-
-            // Keep the Result entity populated for backward-compatibility
-            const result = new Result();
-            result.taskId = task.taskId!;
-            result.data = outputStr;
-            await resultRepository.save(result);
-            task.resultId = result.resultId!;
 
             await this.taskRepository.save(task);
 

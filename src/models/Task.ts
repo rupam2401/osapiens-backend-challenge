@@ -19,9 +19,6 @@ export class Task {
     @Column({ nullable: true, type: 'text' })
     progress?: string | null;
 
-    @Column({ nullable: true })
-    resultId?: string;
-
     @Column()
     taskType!: string;
 
