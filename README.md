@@ -18,35 +18,35 @@ Local installs of Node are a convenience for the inner dev loop; they are not a 
 
 ---
 
-## Setup & runthrough
-
-**1. Start the container**
+## Quick start
 
 ```bash
-make up
+make up                            # build the image and start the container
+make open                          # open Swagger at http://localhost:3000/api-docs
 ```
 
-**2. Open the Swagger playground**
+That's the whole supported path. The container exposes the API on port 3000 and is the only environment exercised by CI.
+
+### Try an end-to-end demo
 
 ```bash
-make open
+make demo                          # Brazil polygon — runs the 3-task pipeline (~20s)
+make demo-de                       # Berlin polygon
+make demo-fail                     # Invalid geometry — exercises the failure cascade
+make wf WID=<workflowId>           # Re-poll status + results for a known workflow
 ```
 
-Or navigate to `http://localhost:3000/api-docs` directly.
+### Local development (optional, no Docker)
 
-**3. (Optional) Run a full end-to-end demo**
+Useful for the inner edit/test loop only — not a supported deployment path.
 
 ```bash
-make demo
+npm install --registry https://registry.npmjs.org
+npm run dev                        # ts-node + nodemon, hot-reload
+npm test                           # 25 tests across 6 suites
 ```
 
-This creates a Brazil polygon workflow, waits ~20 s for all 3 tasks to complete, then prints the status and aggregated results. You can also run `make demo-de` (Berlin) or `make demo-fail` (error cascade demo).
-
-To inspect a specific workflow you already created:
-
-```bash
-make wf WID=<workflowId>
-```
+> `--registry` is required because the project's `.npmrc` points to a private CodeArtifact registry with an expired token. All packages resolve from the public registry.
 
 ---
 
@@ -58,37 +58,12 @@ make wf WID=<workflowId>
 | Language | TypeScript 6 |
 | HTTP framework | Express 5 |
 | ORM | TypeORM 0.3 |
-| Database | `better-sqlite3` (native SQLite; prebuilt binaries for Linux/macOS, no C++ toolchain needed) |
+| Database | `better-sqlite3` (native SQLite; musl prebuild used in Alpine) |
 | Geospatial | `@turf/turf` 7 |
 | Validation | `zod` |
 | Logging | `pino` + `pino-http` |
 | Tests | Jest 30 + ts-jest + supertest |
 | Lint / format | ESLint 9 (flat config) + Prettier |
-
----
-
-## Quick start
-
-### Docker (recommended)
-
-```bash
-make up
-```
-
-That's it. The image builds and the container starts. Open the interactive playground at:
-
-**http://localhost:3000/api-docs**
-
-### Local dev (no Docker)
-
-```bash
-npm install --registry https://registry.npmjs.org
-npm run build && npm start
-# or, with hot reload:
-npm run dev
-```
-
-> `--registry` is required because the project's `.npmrc` points to a private CodeArtifact registry with an expired token. All packages resolve from the public registry.
 
 ---
 
@@ -143,7 +118,7 @@ NPM scripts: `npm run lint`, `npm run lint:fix`, `npm run format`, `npm run form
 ├── eslint.config.js        # ESLint 9 flat config
 ├── .prettierrc             # 4-space, single-quote, 100 col
 ├── .env.example            # Documented env vars (copy to .env)
-├── .github/workflows/ci.yml  # Typecheck → lint → test on Node 20/22
+├── .github/workflows/ci.yml  # node:24-alpine: typecheck/lint/test + Docker build + /health probe
 ├── src/
 │   ├── config.ts           # Typed env-derived config object
 │   ├── data-source.ts      # TypeORM DataSource (better-sqlite3)
@@ -378,7 +353,7 @@ steps:
 
 **Graceful shutdown:** on `SIGTERM`/`SIGINT`, `index.ts` closes the HTTP server, aborts the worker, waits up to 10 s for the in-flight task to finish, then closes the DataSource and exits 0.
 
-**Database:** TypeORM's `better-sqlite3` driver — a fast native SQLite binding with prebuilt binaries for `linux-musl-x64`/`arm64` (Alpine), `linux-x64`, and `darwin`. Persisted to `data/database.sqlite`; in Docker the `data/` directory is backed by the `osapiens-data` named volume.
+**Database:** TypeORM's `better-sqlite3` driver — a fast native SQLite binding. The Alpine container pulls the `linux-musl-x64` prebuild at `npm ci`, so no compiler is required. The DB lives at `data/database.sqlite`; in Docker the `data/` directory is backed by the `osapiens-data` named volume.
 
 ---
 
@@ -401,7 +376,7 @@ npm test
 | `analysisRoutes.test.ts` | zod 400 paths: empty body, missing `clientId`, Point geometry, valid 202 |
 | `healthRoute.test.ts` | 200 happy path against `SELECT 1` probe |
 
-CI runs `typecheck` → `lint` → `test` on Node 20 and 22.
+CI runs `typecheck` → `lint` → `test` inside `node:24-alpine` (mirroring the Dockerfile), and in parallel builds the real image and waits for `GET /health` to return 200.
 
 ---
 
