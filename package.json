@@ -4,7 +4,7 @@
     "description": "Async workflow runner with YAML-defined pipelines (TypeScript + Express + TypeORM).",
     "license": "MIT",
     "engines": {
-        "node": ">=20"
+        "node": "24.x"
     },
     "scripts": {
         "start": "node dist/index.js",

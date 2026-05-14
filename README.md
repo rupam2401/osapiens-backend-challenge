@@ -4,6 +4,20 @@ Async workflow engine built with **TypeScript**, **Express 5**, and **TypeORM**.
 
 ---
 
+## Requirements
+
+The only supported runtime is the Docker container produced by the included `Dockerfile`. Both CI and production target `node:24-alpine` — code is not tested against any other Node version or OS.
+
+| Tool | Used for | Required? |
+|---|---|---|
+| **Docker** | Running the service (`make up`) and the CI smoke test | **Yes** |
+| **GNU Make** | Convenience targets (`make up`, `make demo`, …) | Recommended |
+| **Node.js 24.x + npm** | Local development only (`npm run dev`, `npm test`) | Optional |
+
+Local installs of Node are a convenience for the inner dev loop; they are not a supported deployment target. The `package.json` `engines` field pins Node 24.x to match the Dockerfile.
+
+---
+
 ## Setup & runthrough
 
 **1. Start the container**
@@ -40,7 +54,7 @@ make wf WID=<workflowId>
 
 | Layer | Library / version |
 |---|---|
-| Runtime | Node.js 20+ (Docker image uses Node 24 Alpine) |
+| Runtime | Node.js 24 (Docker image: `node:24-alpine`) |
 | Language | TypeScript 6 |
 | HTTP framework | Express 5 |
 | ORM | TypeORM 0.3 |
