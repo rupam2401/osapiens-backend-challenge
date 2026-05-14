@@ -4,14 +4,9 @@ import { Workflow } from '../models/Workflow';
 import { Task } from '../models/Task';
 import { TaskStatus } from '../domain/TaskStatus';
 import { WorkflowStatus } from '../domain/WorkflowStatus';
+import { safeParse } from '../utils/safeParse';
 
 const router = Router();
-
-/** Attempt JSON.parse; fall back to the raw string on failure. */
-function safeParse(value: string | null | undefined): unknown {
-    if (value == null) return null;
-    try { return JSON.parse(value); } catch { return value; }
-}
 
 /**
  * GET /workflow/:id/status

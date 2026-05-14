@@ -4,12 +4,7 @@ import { getJobForTaskType } from '../jobs/JobFactory';
 import { WorkflowStatus } from '../domain/WorkflowStatus';
 import { TaskStatus } from '../domain/TaskStatus';
 import { Workflow } from '../models/Workflow';
-
-/** Attempt JSON.parse; on failure return the raw value. */
-function safeParse(value: string | null | undefined): unknown {
-    if (value == null) return null;
-    try { return JSON.parse(value); } catch { return value; }
-}
+import { safeParse } from '../utils/safeParse';
 
 export class TaskRunner {
     constructor(

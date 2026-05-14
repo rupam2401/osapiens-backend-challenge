@@ -2,12 +2,7 @@ import { Job, JobContext } from './Job';
 import { Task } from '../models/Task';
 import { AppDataSource } from '../data-source';
 import { TaskStatus } from '../domain/TaskStatus';
-
-/** Attempt JSON.parse; fall back to raw string on failure. */
-function safeParse(value: string | null | undefined): unknown {
-    if (value == null) return null;
-    try { return JSON.parse(value); } catch { return value; }
-}
+import { safeParse } from '../utils/safeParse';
 
 export class ReportGenerationJob implements Job {
     async run(task: Task, _context?: JobContext): Promise<string> {
