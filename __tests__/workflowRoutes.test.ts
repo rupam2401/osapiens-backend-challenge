@@ -11,8 +11,8 @@ import { TestDataSource } from './testDataSource';
 import workflowRoutes from '../src/routes/workflowRoutes';
 import { Workflow } from '../src/models/Workflow';
 import { Task } from '../src/models/Task';
-import { WorkflowStatus } from '../src/workflows/WorkflowFactory';
-import { TaskStatus } from '../src/workers/taskRunner';
+import { WorkflowStatus } from '../src/domain/WorkflowStatus';
+import { TaskStatus } from '../src/domain/TaskStatus';
 import { AppDataSource } from '../src/data-source';
 
 // -------------------------------------------------------------------

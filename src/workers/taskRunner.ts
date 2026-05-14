@@ -1,16 +1,14 @@
 import { Repository } from 'typeorm';
 import { Task } from '../models/Task';
 import { getJobForTaskType } from '../jobs/JobFactory';
-import { WorkflowStatus } from '../workflows/WorkflowFactory';
+import { WorkflowStatus } from '../domain/WorkflowStatus';
+import { TaskStatus } from '../domain/TaskStatus';
 import { Workflow } from '../models/Workflow';
 import { Result } from '../models/Result';
 
-export enum TaskStatus {
-    Queued = 'queued',
-    InProgress = 'in_progress',
-    Completed = 'completed',
-    Failed = 'failed'
-}
+// Temporary re-export to keep this commit buildable; removed in C3
+// once all consumers have migrated to `src/domain/TaskStatus`.
+export { TaskStatus };
 
 /** Attempt JSON.parse; on failure return the raw value. */
 function safeParse(value: string | null | undefined): unknown {

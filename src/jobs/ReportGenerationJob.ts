@@ -1,7 +1,7 @@
 import { Job, JobContext } from './Job';
 import { Task } from '../models/Task';
 import { AppDataSource } from '../data-source';
-import { TaskStatus } from '../workers/taskRunner';
+import { TaskStatus } from '../domain/TaskStatus';
 
 /** Attempt JSON.parse; fall back to raw string on failure. */
 function safeParse(value: string | null | undefined): unknown {

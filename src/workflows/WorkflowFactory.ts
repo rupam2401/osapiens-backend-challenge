@@ -3,14 +3,12 @@ import * as yaml from 'js-yaml';
 import { DataSource } from 'typeorm';
 import { Workflow } from '../models/Workflow';
 import { Task } from '../models/Task';
-import { TaskStatus } from '../workers/taskRunner';
+import { TaskStatus } from '../domain/TaskStatus';
+import { WorkflowStatus } from '../domain/WorkflowStatus';
 
-export enum WorkflowStatus {
-    Initial = 'initial',
-    InProgress = 'in_progress',
-    Completed = 'completed',
-    Failed = 'failed'
-}
+// Temporary re-export to keep this commit buildable; removed in C3
+// once all consumers have migrated to `src/domain/WorkflowStatus`.
+export { WorkflowStatus };
 
 interface WorkflowStep {
     taskType: string;

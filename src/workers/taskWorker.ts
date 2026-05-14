@@ -1,6 +1,7 @@
 import { AppDataSource } from '../data-source';
 import { Task } from '../models/Task';
-import { TaskRunner, TaskStatus } from './taskRunner';
+import { TaskRunner } from './taskRunner';
+import { TaskStatus } from '../domain/TaskStatus';
 
 /**
  * Finds the next queued task that is eligible to run.

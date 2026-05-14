@@ -1,6 +1,6 @@
 import { PolygonAreaJob } from '../src/jobs/PolygonAreaJob';
 import { Task } from '../src/models/Task';
-import { TaskStatus } from '../src/workers/taskRunner';
+import { TaskStatus } from '../src/domain/TaskStatus';
 
 /** Minimal Task stub — only the fields PolygonAreaJob reads */
 function makeTask(geoJson: string): Task {

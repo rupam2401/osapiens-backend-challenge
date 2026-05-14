@@ -1,8 +1,9 @@
 import { TestDataSource } from './testDataSource';
 import { Task } from '../src/models/Task';
 import { Workflow } from '../src/models/Workflow';
-import { TaskRunner, TaskStatus } from '../src/workers/taskRunner';
-import { WorkflowStatus } from '../src/workflows/WorkflowFactory';
+import { TaskRunner } from '../src/workers/taskRunner';
+import { TaskStatus } from '../src/domain/TaskStatus';
+import { WorkflowStatus } from '../src/domain/WorkflowStatus';
 
 beforeAll(async () => {
     await TestDataSource.initialize();
